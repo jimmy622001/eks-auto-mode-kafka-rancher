@@ -2,6 +2,50 @@ locals {
   cluster_name = "ctse-sample"
 }
 
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 3.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.0.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = ">= 0.9.0"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.0"
+    }
+  }
+}
+
+provider "kubernetes" {
+  host                   = aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(aws_eks_cluster.cluster.certificate_authority[0].data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args = [
+      "eks",
+      "get-token",
+      "--cluster-name",
+      aws_eks_cluster.cluster.name
+    ]
+  }
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = aws_eks_cluster.cluster.name
+}
+
 module "vpc_eks" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.5.0"
@@ -139,4 +183,36 @@ resource "aws_iam_role_policy_attachment" "node_AmazonEKSWorkerNodeMinimalPolicy
 resource "aws_iam_role_policy_attachment" "node_AmazonEC2ContainerRegistryPullOnly" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
   role       = aws_iam_role.node.name
+}
+
+
+
+
+module "kafka" {
+  source = "./modules/kafka"
+
+  namespace     = "kafka"
+  replica_count = 3
+  storage_class = "gp3"
+  resources = {
+    requests = {
+      cpu    = "1000m"
+      memory = "2Gi"
+    }
+    limits = {
+      cpu    = "2000m"
+      memory = "4Gi"
+    }
+  }
+}
+
+module "rancher" {
+  source = "./modules/rancher"
+
+  cluster_name     = aws_eks_cluster.cluster.name
+  rancher_hostname = "rancher.${local.cluster_name}.example.com"
+  admin_password   = "your-secure-password"
+  replica_count    = 3
+
+  depends_on = [aws_eks_cluster.cluster]
 }

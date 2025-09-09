@@ -1,0 +1,10 @@
+
+apiVersion: v2
+name: rancher-wrapper
+description: A wrapper chart for Rancher
+type: application
+version: 0.1.0
+dependencies:
+  - name: rancher
+    version: 2.7.5
+    repository: https://releases.rancher.com/server-charts/stable
