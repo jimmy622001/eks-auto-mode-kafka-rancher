@@ -1,5 +1,6 @@
 
 # EKS Cluster with Kafka and Rancher
+Note: Comment out CDN and Kafka until EKS is running thereafter build the rest.
 
 This Terraform project deploys a production-ready EKS cluster on AWS with Kafka and Rancher for monitoring. The infrastructure is set up in a modular way with high availability in mind.
 
