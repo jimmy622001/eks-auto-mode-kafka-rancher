@@ -43,3 +43,123 @@ resource "helm_release" "kafka" {
     }
   ]
 }
+
+# ... existing code ...
+
+resource "kubernetes_deployment" "kafka" {
+  metadata {
+    name      = "kafka"
+    namespace = var.namespace
+  }
+
+  spec {
+    replicas = var.replicas
+
+    selector {
+      match_labels = {
+        app = "kafka"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "kafka"
+        }
+      }
+
+      spec {
+        affinity {
+          pod_anti_affinity {
+            required_during_scheduling_ignored_during_execution {
+              label_selector {
+                match_expressions {
+                  key      = "app"
+                  operator = "In"
+                  values   = ["kafka"]
+                }
+              }
+              topology_key = "kubernetes.io/hostname"
+            }
+          }
+          node_affinity {
+            required_during_scheduling_ignored_during_execution {
+              node_selector_term {
+                match_expressions {
+                  key      = "topology.kubernetes.io/zone"
+                  operator = "In"
+                  values   = var.availability_zones
+                }
+              }
+            }
+          }
+        }
+
+        container { # Changed from containers to container
+          name  = "kafka"
+          image = "confluentinc/cp-kafka:${var.kafka_version}"
+
+          resources {
+            limits = {
+              cpu    = "2000m"
+              memory = "4Gi"
+            }
+            requests = {
+              cpu    = "1000m"
+              memory = "2Gi"
+            }
+          }
+
+          env {
+            name  = "KAFKA_ZOOKEEPER_CONNECT"
+            value = var.zookeeper_connect
+          }
+
+          env {
+            name  = "KAFKA_ADVERTISED_LISTENERS"
+            value = "INTERNAL://$(POD_IP):9092"
+          }
+
+          env {
+            name  = "KAFKA_INTER_BROKER_LISTENER_NAME"
+            value = "INTERNAL"
+          }
+
+          env {
+            name  = "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP"
+            value = "INTERNAL:PLAINTEXT"
+          }
+
+          env {
+            name = "POD_IP"
+            value_from {
+              field_ref {
+                field_path = "status.podIP"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "kafka" {
+  metadata {
+    name      = "kafka"
+    namespace = var.namespace
+  }
+
+  spec {
+    selector = {
+      app = "kafka"
+    }
+
+    port {
+      port        = 9092
+      target_port = 9092
+    }
+
+    type = "ClusterIP"
+  }
+}

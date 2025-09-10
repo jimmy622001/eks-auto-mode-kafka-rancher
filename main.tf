@@ -185,27 +185,6 @@ resource "aws_iam_role_policy_attachment" "node_AmazonEC2ContainerRegistryPullOn
   role       = aws_iam_role.node.name
 }
 
-
-
-
-module "kafka" {
-  source = "./modules/kafka"
-
-  namespace     = "kafka"
-  replica_count = 3
-  storage_class = "gp3"
-  resources = {
-    requests = {
-      cpu    = "1000m"
-      memory = "2Gi"
-    }
-    limits = {
-      cpu    = "2000m"
-      memory = "4Gi"
-    }
-  }
-}
-
 module "rancher" {
   source = "./modules/rancher"
 
@@ -216,3 +195,26 @@ module "rancher" {
 
   depends_on = [aws_eks_cluster.cluster]
 }
+
+
+/*
+module "cloudfront" {
+  source = "./modules/cloudfront"
+
+  eks_endpoint = var.eks_endpoint
+  tags = {
+    Environment = var.environment
+    Terraform   = "true"
+  }
+}
+
+module "kafka" {
+  source = "./modules/kafka"
+
+  namespace          = var.namespace
+  replicas          = var.replicas
+  kafka_version     = var.kafka_version
+  availability_zones = var.availability_zones
+  zookeeper_connect  = "${var.namespace}-zookeeper:2181"  # Using the standard Kafka chart zookeeper service name
+}
+*/

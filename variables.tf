@@ -1,3 +1,27 @@
+
+
+variable "environment" {
+  description = "Environment name (e.g., prod, staging, dev)"
+  type        = string
+  default     = "prod"
+}
+
+variable "eks_endpoint" {
+  description = "EKS cluster endpoint URL"
+  type        = string
+}
+
+variable "aws_region" {
+  description = "AWS region where resources will be created"
+  type        = string
+  default     = "eu-west-1"
+}
+
+variable "availability_zones" {
+  description = "List of availability zones for the region"
+  type        = list(string)
+  default     = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+}
 variable "namespace" {
   description = "Kubernetes namespace where Kafka will be deployed"
   type        = string
@@ -63,13 +87,9 @@ variable "kafka_version" {
   type        = string
   default     = "7.5.0"
 }
-
+/*
 variable "zookeeper_connect" {
   description = "Zookeeper connection string"
   type        = string
 }
-
-variable "availability_zones" {
-  description = "List of AWS availability zones for pod distribution"
-  type        = list(string)
-}
+*/
