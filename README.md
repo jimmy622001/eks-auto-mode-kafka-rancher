@@ -17,8 +17,17 @@ This Terraform project deploys a production-ready EKS cluster on AWS with Kafka 
 ### EKS Cluster
 - Kubernetes version 1.32
 - Private and public endpoint access
+- Auto Scaling Features:
+  - Cluster Autoscaler enabled for automatic node scaling
+  - General purpose node group: 2-5 nodes
+  - System node group: 2-3 nodes
+  - Auto-scaling policies and IAM roles configured
+- Load Balancing:
+  - AWS Load Balancer Controller integration
+  - Elastic Load Balancing enabled
+  - Support for both internal and external load balancers
+  - Automatic load balancer provisioning
 - Node pools for general-purpose and system workloads
-- ELB integration enabled
 - Block storage support
 - Zonal shift capability for high availability
 
@@ -27,6 +36,7 @@ This Terraform project deploys a production-ready EKS cluster on AWS with Kafka 
 - Proper security group configurations
 - API authentication mode
 - Minimal node permissions
+- Auto-scaling specific IAM permissions
 
 ### Applications
 
