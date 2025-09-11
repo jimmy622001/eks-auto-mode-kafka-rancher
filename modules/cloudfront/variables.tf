@@ -6,5 +6,5 @@ variable "eks_endpoint" {
 variable "tags" {
   description = "Tags to apply to the CDN resources"
   type        = map(string)
-  default     = {}
+  default     = { ctse = "true" }
 }
