@@ -4,3 +4,10 @@ projects:
   - path: .
     terraform_var_files:
       - terraform.tfvars
+
+        # infracost breakdown --path .
+      # # Generate Infracost JSON file
+      #infracost breakdown --path . --format json --out-file infracost-base.json
+      #
+      ## Generate cost estimate report
+      #infracost output --path infracost-base.json --format html --out-file cost-report.html
