@@ -1,8 +1,6 @@
 
 # EKS Cluster with Kafka and Rancher
-Note: Comment out CDN and Kafka until EKS is running thereafter build the rest.
-
-This Terraform project deploys a production-ready EKS cluster on AWS with Kafka and Rancher for monitoring. The infrastructure is set up in a modular way with high availability in mind.
+Note: This infrastructure should be deployed in stages - start with EKS cluster, then enable Kafka and Rancher modules.
 
 ## Infrastructure Components
 
@@ -13,6 +11,11 @@ This Terraform project deploys a production-ready EKS cluster on AWS with Kafka 
 - VPN Gateway enabled
 - DNS hostnames and support enabled
 - Proper tagging for EKS integration
+- AWS Systems Manager (SSM) Integration:
+  - VPC Endpoints for SSM, SSM Messages, and EC2 Messages
+  - Private DNS enabled for secure communication
+  - Dedicated security group for VPC endpoints
+  - Access restricted to VPC CIDR range
 
 ### EKS Cluster
 - Kubernetes version 1.32

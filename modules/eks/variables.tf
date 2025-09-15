@@ -91,3 +91,7 @@ variable "namespace" {
   description = "Kubernetes namespace for EKS components"
   default     = "kube-system"
 }
+variable "aws_region" {
+  type        = string
+  description = "AWS region"
+}

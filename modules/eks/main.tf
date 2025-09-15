@@ -2,12 +2,12 @@ locals {
   cluster_name = var.cluster_name
 }
 
+
 module "vpc_eks" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.5.0"
 
   name = var.cluster_name
-
   cidr = var.vpc_cidr
 
   azs             = var.availability_zones
@@ -19,7 +19,6 @@ module "vpc_eks" {
   one_nat_gateway_per_az = false
 
   enable_vpn_gateway = true
-
   enable_dns_hostnames = true
   enable_dns_support   = true
 
@@ -44,6 +43,64 @@ module "vpc_eks" {
       "kubernetes.io/cluster/${local.cluster_name}" = "shared"
     }
   )
+}
+
+# Create VPC Endpoints for SSM
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id              = module.vpc_eks.vpc_id
+  service_name        = "com.amazonaws.${var.aws_region}.ssm"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = module.vpc_eks.private_subnets
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.cluster_name}-ssm-endpoint"
+  }
+}
+
+resource "aws_vpc_endpoint" "ssmmessages" {
+  vpc_id              = module.vpc_eks.vpc_id
+  service_name        = "com.amazonaws.${var.aws_region}.ssmmessages"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = module.vpc_eks.private_subnets
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.cluster_name}-ssmmessages-endpoint"
+  }
+}
+
+resource "aws_vpc_endpoint" "ec2messages" {
+  vpc_id              = module.vpc_eks.vpc_id
+  service_name        = "com.amazonaws.${var.aws_region}.ec2messages"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = module.vpc_eks.private_subnets
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.cluster_name}-ec2messages-endpoint"
+  }
+}
+
+resource "aws_security_group" "vpc_endpoints" {
+  name        = "${var.cluster_name}-vpc-endpoints"
+  description = "Security group for VPC endpoints"
+  vpc_id      = module.vpc_eks.vpc_id
+
+  ingress {
+    description = "HTTPS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
+  tags = {
+    Name = "${var.cluster_name}-vpc-endpoints"
+  }
 }
 
 resource "aws_eks_cluster" "cluster" {
