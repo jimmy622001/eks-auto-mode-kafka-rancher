@@ -1,13 +1,3 @@
-
-terraform {
-  required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-      version = ">= 3.0"
-    }
-  }
-}
-
 resource "helm_release" "cert_manager" {
   name             = "cert-manager"
   repository       = "https://charts.jetstack.io"
@@ -45,7 +35,7 @@ resource "helm_release" "rancher" {
     },
     {
       name  = "bootstrapPassword"
-      value = var.admin_password
+      value = var.rancher_admin_password
     }
   ]
 }

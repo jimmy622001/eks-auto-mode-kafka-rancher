@@ -18,7 +18,7 @@ module "vpc_eks" {
   single_nat_gateway     = true
   one_nat_gateway_per_az = false
 
-  enable_vpn_gateway = true
+  enable_vpn_gateway   = true
   enable_dns_hostnames = true
   enable_dns_support   = true
 

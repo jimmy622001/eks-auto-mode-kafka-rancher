@@ -1,8 +1,6 @@
-# AWS General Configuration
 variable "aws_region" {
   description = "AWS region"
   type        = string
-
 }
 
 variable "environment" {
@@ -11,11 +9,16 @@ variable "environment" {
   default     = "production"
 }
 
+variable "tags" {
+  description = "Default tags to apply to resources"
+  type        = map(string)
+  default     = {}
+}
+
 # Organization and Control Tower Configuration
 variable "organization_name" {
   description = "Name of the AWS Organization"
   type        = string
-
 }
 
 variable "organization_email" {
@@ -33,39 +36,12 @@ variable "audit_email" {
   type        = string
 }
 
-variable "enable_guardrails" {
-  description = "Enable Control Tower guardrails"
-  type        = bool
-  default     = true
-}
-
 # EKS Configuration
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
 }
 
-# Rancher Configuration
-variable "rancher_hostname" {
-  description = "Hostname for Rancher"
-  type        = string
-}
-
-variable "rancher_admin_password" {
-  description = "Admin password for Rancher"
-  type        = string
-  sensitive   = true
-}
-
-variable "replica_count" {
-  description = "Number of Rancher replicas"
-  type        = number
-  default     = 3
-}
-
-# Remove system_node_group if not needed in the Rancher module
-
-# Additional EKS Configuration
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
   type        = string
@@ -90,6 +66,44 @@ variable "public_subnets" {
   default     = ["10.20.24.0/23", "10.20.26.0/23", "10.20.28.0/23"]
 }
 
+variable "kubernetes_version" {
+  description = "Kubernetes version for EKS cluster"
+  type        = string
+  default     = "1.28"  # Updated to a valid version
+}
+
+variable "organizational_units" {
+  description = "List of organizational units to create"
+  type        = list(string)
+  default     = ["Security", "Infrastructure", "Workloads", "Sandbox"]
+}
+
+# Rancher Configuration
+variable "rancher_hostname" {
+  description = "Hostname for Rancher"
+  type        = string
+}
+
+variable "rancher_admin_password" {
+  description = "Admin password for Rancher"
+  type        = string
+  sensitive   = true
+}
+
+variable "replica_count" {
+  description = "Number of Rancher replicas"
+  type        = number
+  default     = 3
+}
+
+variable "system_node_group" {
+  description = "Configuration for the system node group"
+  type = object({
+    desired_size = number,
+    min_size     = number
+  })
+}
+
 variable "endpoint_private_access" {
   description = "Enable private API server endpoint access for EKS"
   type        = bool
@@ -100,37 +114,4 @@ variable "endpoint_public_access" {
   description = "Enable public API server endpoint access for EKS"
   type        = bool
   default     = true
-}
-
-variable "kubernetes_version" {
-  description = "Kubernetes version for EKS cluster"
-  type        = string
-  default     = "1.32"
-}
-
-# Node Group Configuration
-variable "general_purpose_node_group" {
-  description = "Configuration for the general purpose node group"
-  type = object({
-    desired_size   = number
-    min_size       = number
-    max_size       = number
-    instance_types = list(string)
-    capacity_type  = string
-  })
-  default = {
-    desired_size   = 2
-    min_size       = 2
-    max_size       = 5
-    instance_types = ["t3.medium"]
-    capacity_type  = "ON_DEMAND"
-  }
-}
-
-variable "system_node_group" {
-  description = "Configuration for the system node group"
-  type = object({
-    desired_size = number,
-    min_size     = number
-  })
 }

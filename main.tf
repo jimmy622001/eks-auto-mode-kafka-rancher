@@ -1,4 +1,3 @@
-
 terraform {
   required_providers {
     aws = {
@@ -16,7 +15,6 @@ terraform {
   }
 }
 
-
 provider "aws" {
   region = var.aws_region
 
@@ -29,14 +27,44 @@ provider "aws" {
   }
 }
 
+# First, deploy Landing Zone
+module "landing_zone" {
+  source = "./modules/landing-zone"
+  aws_region        = var.aws_region
+  audit_email       = var.audit_email
+  organization_name = var.organization_name
+  cluster_name      = var.cluster_name
+  system_node_group = var.system_node_group
+  rancher_hostname = var.rancher_hostname
+  rancher_admin_password = var.rancher_admin_password
+
+
+  log_archive_email  = var.log_archive_email
+  organization_email = var.organization_email
+}
+
+# Then Control Tower
+module "control_tower" {
+  source = "./modules/control-tower"
+
+  aws_region         = var.aws_region
+  organization_email = var.organization_email
+  log_archive_email  = var.log_archive_email
+  audit_email        = var.audit_email
+}
+
+# Then deploy EKS
+
 module "eks" {
-  source = "./modules/eks"
-  aws_region = var.aws_region
+  source       = "./modules/eks"
+  aws_region   = var.aws_region
   cluster_name = var.cluster_name
+  kubernetes_version   = var.kubernetes_version
   tags = {
     Environment = var.environment
     Terraform   = "true"
   }
+  depends_on = [module.control_tower]
 }
 
 provider "kubernetes" {
@@ -59,62 +87,38 @@ provider "helm" {
   kubernetes = {
     host                   = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args = [
-      "eks",
-      "get-token",
-      "--cluster-name",
-      module.eks.cluster_name
-    ]
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args = [
+        "eks",
+        "get-token",
+        "--cluster-name",
+        module.eks.cluster_name
+      ]
+    }
   }
 }
 
-
-module "rancher" {
-  source     = "./modules/rancher"
-  depends_on = [module.eks]
-
-  cluster_name     = module.eks.cluster_name
-  rancher_hostname = "rancher.${var.cluster_name}.example.com"
-  admin_password   = var.rancher_admin_password
-}
-
-resource "aws_iam_role" "node" {
-  name = "${var.cluster_name}-node-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = ["sts:AssumeRole"]
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      },
-    ]
-  })
-}
-
-# Add SSM policy attachment for node role
-resource "aws_iam_role_policy_attachment" "node_AmazonSSMManagedInstanceCore" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  role       = aws_iam_role.node.name
-}
 # Commented out until EKS is running
 # module "kafka" {
 #   source     = "./modules/kafka"
 #   depends_on = [module.eks]
 # }
 
-# Commented out until EKS is running
-# module "rancher" {
-#   source     = "./modules/rancher"
-#   depends_on = [module.eks]
-#
-#   cluster_name     = module.eks.cluster_name
-#   rancher_hostname = "rancher.${var.cluster_name}.example.com"
-#   admin_password   = var.rancher_admin_password
-# }
+module "rancher" {
+  source     = "./modules/rancher"
+  depends_on = [module.eks]
+
+  cluster_name           = module.eks.cluster_name
+  rancher_hostname       = "rancher.${var.cluster_name}.example.com"
+  replica_count          = var.replica_count
+  aws_region             = var.aws_region
+  log_archive_email      = var.log_archive_email
+  audit_email            = var.audit_email
+  organization_email     = var.organization_email
+  organization_name      = var.organization_name
+  environment            = var.environment
+  system_node_group      = var.system_node_group
+  rancher_admin_password = var.rancher_admin_password
+}

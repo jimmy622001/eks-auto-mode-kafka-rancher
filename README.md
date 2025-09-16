@@ -1,5 +1,32 @@
 
 # EKS Cluster with Kafka and Rancher
+
+## Infrastructure Components
+
+### AWS Organizations and Account Management
+- AWS Control Tower Implementation:
+  - Automated account provisioning
+  - Security and compliance guardrails
+  - Centralized logging with AWS CloudWatch
+  - Cross-account IAM roles and policies
+  - Service Control Policies (SCPs)
+
+### AWS Landing Zone
+- Multi-account structure:
+  - Management account
+  - Security account
+  - Log archive account
+  - Shared services account
+- Centralized networking:
+  - Transit Gateway for inter-VPC connectivity
+  - Centralized DNS management
+  - Network firewall rules
+- Security baseline:
+  - AWS Config rules
+  - CloudTrail enabled
+  - Security Hub integration
+  - GuardDuty deployment
+
 Note: This infrastructure should be deployed in stages - start with EKS cluster, then enable Kafka and Rancher modules.
 
 ## Infrastructure Components
@@ -64,6 +91,10 @@ Note: This infrastructure should be deployed in stages - start with EKS cluster,
 - Terraform >= 1.0
 - kubectl
 - Helm v3
+- AWS Organizations management account access
+- AWS Control Tower administrative access
+- Multi-account strategy documented
+- Compliance requirements documented
 
 ## Usage
 
