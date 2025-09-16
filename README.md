@@ -1,101 +1,100 @@
 
-# EKS Cluster with Kafka and Rancher
+# EKS Auto-Mode with Kafka and Rancher
 
-## Infrastructure Components
+This project provides Infrastructure as Code (IaC) for deploying a production-ready EKS cluster with integrated services including Apache Kafka, Rancher management platform, and monitoring solutions.
 
-### AWS Organizations and Account Management
-- AWS Control Tower Implementation:
+## Architecture Components
+
+### Core Infrastructure
+- **AWS Control Tower Landing Zone**
+  - Multi-account AWS environment
+  - Centralized logging and security
+  - Compliance and governance guardrails
   - Automated account provisioning
-  - Security and compliance guardrails
-  - Centralized logging with AWS CloudWatch
-  - Cross-account IAM roles and policies
-  - Service Control Policies (SCPs)
 
-### AWS Landing Zone
-- Multi-account structure:
-  - Management account
-  - Security account
-  - Log archive account
-  - Shared services account
-- Centralized networking:
-  - Transit Gateway for inter-VPC connectivity
-  - Centralized DNS management
-  - Network firewall rules
-- Security baseline:
-  - AWS Config rules
-  - CloudTrail enabled
-  - Security Hub integration
-  - GuardDuty deployment
+- **Amazon EKS Cluster**
+  - Managed Kubernetes service
+  - Auto-scaling node groups
+  - Private networking configuration
+  - IAM integration
 
-Note: This infrastructure should be deployed in stages - start with EKS cluster, then enable Kafka and Rancher modules.
+### Management Layer
+- **Rancher Management Platform**
+  - Multi-cluster management
+  - RBAC configuration
+  - GitOps integration
+  - Unified cluster operations
 
-## Infrastructure Components
+### Data Services
+- **Apache Kafka Cluster**
+  - Distributed streaming platform
+  - High availability configuration
+  - Auto-scaling capabilities
+  - Monitoring integration
 
-### VPC Setup
-- Creates a VPC with CIDR block 10.20.0.0/19
-- 3 Availability Zones with public and private subnets
-- NAT Gateway for private subnet internet access
-- VPN Gateway enabled
-- DNS hostnames and support enabled
-- Proper tagging for EKS integration
-- AWS Systems Manager (SSM) Integration:
-  - VPC Endpoints for SSM, SSM Messages, and EC2 Messages
-  - Private DNS enabled for secure communication
-  - Dedicated security group for VPC endpoints
-  - Access restricted to VPC CIDR range
+### Monitoring Stack
+- **Prometheus & Grafana**
+  - Prometheus for metrics collection and storage
+  - Grafana for metrics visualization and dashboarding
+  - Pre-configured dashboards for Kubernetes and Kafka
+  - Persistent storage for metrics data
 
-### EKS Cluster
-- Kubernetes version 1.32
-- Private and public endpoint access
-- Auto Scaling Features:
-  - Cluster Autoscaler enabled for automatic node scaling
-  - General purpose node group: 2-5 nodes
-  - System node group: 2-3 nodes
-  - Auto-scaling policies and IAM roles configured
-- Load Balancing:
-  - AWS Load Balancer Controller integration
-  - Elastic Load Balancing enabled
-  - Support for both internal and external load balancers
-  - Automatic load balancer provisioning
-- Node pools for general-purpose and system workloads
-- Block storage support
-- Zonal shift capability for high availability
+## Components
 
-### Security
-- IAM roles and policies for EKS cluster and nodes
-- Proper security group configurations
-- API authentication mode
-- Minimal node permissions
-- Auto-scaling specific IAM permissions
-
-### Applications
-
-#### Kafka Deployment
-- 3 replica deployment for high availability
-- GP3 storage class for persistence
-- Resource limits:
-    - CPU: 2000m
-    - Memory: 4Gi
-- Resource requests:
-    - CPU: 1000m
-    - Memory: 2Gi
-
-#### Rancher Deployment
-- 3 replica deployment for high availability
-- Cert-manager integration for TLS
-- Web UI access via custom hostname
-- Monitoring capabilities for the EKS cluster
+- **EKS Cluster**: Managed Kubernetes cluster on AWS
+- **Control Tower**: AWS account structure and governance
+- **Apache Kafka**: Distributed streaming platform
+- **Rancher**: Kubernetes management platform
+- **Prometheus & Grafana**: Monitoring and observability solution
+    - Prometheus for metrics collection and storage
+    - Grafana for metrics visualization and dashboarding
+    - Deployed in the `monitoring` namespace
+    - Grafana is exposed via LoadBalancer service
 
 ## Prerequisites
-- AWS CLI configured
+
+- AWS Account
 - Terraform >= 1.0
-- kubectl
-- Helm v3
-- AWS Organizations management account access
-- AWS Control Tower administrative access
-- Multi-account strategy documented
-- Compliance requirements documented
+- AWS CLI configured
+- kubectl installed
+- Helm 3.x
+- Domain name for Rancher access (optional)
 
-## Usage
+## Quick Start
 
-1. Clone the repository
+1. Clone the repository:
+2.
+# EKS Auto-Mode with Kafka and Rancher
+
+This project provides Infrastructure as Code (IaC) for deploying:
+- Amazon EKS cluster
+- AWS Control Tower Landing Zone
+- Apache Kafka cluster
+- Rancher management platform
+
+## Components
+
+- **EKS Cluster**: Managed Kubernetes cluster on AWS
+- **Control Tower**: AWS account structure and governance
+- **Apache Kafka**: Distributed streaming platform
+- **Rancher**: Kubernetes management platform
+- **Prometheus & Grafana**: Monitoring and observability solution
+    - Prometheus for metrics collection and storage
+    - Grafana for metrics visualization and dashboarding
+    - Deployed in the `monitoring` namespace
+    - Grafana is exposed via LoadBalancer service
+
+## Prerequisites
+
+- AWS Account
+- Terraform >= 1.0
+- AWS CLI configured
+- kubectl installed
+- Helm 3.x
+
+## Quick Start
+
+1. Clone this repository
+2. Configure your AWS credentials
+3. Update `terraform.tfvars` with your values
+4. Run:

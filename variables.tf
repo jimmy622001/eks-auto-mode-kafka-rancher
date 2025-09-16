@@ -8,7 +8,17 @@ variable "cluster_name" {
   type        = string
   description = "Name of the EKS cluster"
 }
+variable "private_subnets" {
+  type        = list(string)
+  description = "List of private subnet CIDR blocks"
 
+}
+
+variable "public_subnets" {
+  type        = list(string)
+  description = "List of public subnet CIDR blocks"
+
+}
 variable "environment" {
   type        = string
   description = "Environment name"
@@ -98,4 +108,14 @@ variable "enable_cloudtrail" {
 variable "endpoint_public_access" {
   description = "Enable public API server endpoint access for EKS"
   type        = bool
+}
+variable "grafana_admin_password" {
+  description = "Admin password for Grafana"
+  type        = string
+  sensitive   = true
+}
+variable "availability_zones" {
+  description = "List of availability zones"
+  type        = list(string)
+
 }

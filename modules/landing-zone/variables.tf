@@ -69,7 +69,7 @@ variable "public_subnets" {
 variable "kubernetes_version" {
   description = "Kubernetes version for EKS cluster"
   type        = string
-  default     = "1.28"  # Updated to a valid version
+  default     = "1.28" # Updated to a valid version
 }
 
 variable "organizational_units" {

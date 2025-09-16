@@ -24,13 +24,13 @@ variable "availability_zones" {
 variable "private_subnets" {
   type        = list(string)
   description = "List of private subnet CIDR blocks"
-  default     = ["10.20.0.0/21", "10.20.8.0/21", "10.20.16.0/21"]
+
 }
 
 variable "public_subnets" {
   type        = list(string)
   description = "List of public subnet CIDR blocks"
-  default     = ["10.20.24.0/23", "10.20.26.0/23", "10.20.28.0/23"]
+
 }
 
 variable "endpoint_private_access" {

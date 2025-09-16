@@ -29,13 +29,13 @@ provider "aws" {
 
 # First, deploy Landing Zone
 module "landing_zone" {
-  source = "./modules/landing-zone"
-  aws_region        = var.aws_region
-  audit_email       = var.audit_email
-  organization_name = var.organization_name
-  cluster_name      = var.cluster_name
-  system_node_group = var.system_node_group
-  rancher_hostname = var.rancher_hostname
+  source                 = "./modules/landing-zone"
+  aws_region             = var.aws_region
+  audit_email            = var.audit_email
+  organization_name      = var.organization_name
+  cluster_name           = var.cluster_name
+  system_node_group      = var.system_node_group
+  rancher_hostname       = var.rancher_hostname
   rancher_admin_password = var.rancher_admin_password
 
 
@@ -56,10 +56,13 @@ module "control_tower" {
 # Then deploy EKS
 
 module "eks" {
-  source       = "./modules/eks"
-  aws_region   = var.aws_region
-  cluster_name = var.cluster_name
-  kubernetes_version   = var.kubernetes_version
+  source             = "./modules/eks"
+  aws_region         = var.aws_region
+  cluster_name       = var.cluster_name
+  public_subnets     = var.public_subnets
+  private_subnets    = var.private_subnets
+  availability_zones = var.availability_zones
+  kubernetes_version = var.kubernetes_version
   tags = {
     Environment = var.environment
     Terraform   = "true"
@@ -121,4 +124,12 @@ module "rancher" {
   environment            = var.environment
   system_node_group      = var.system_node_group
   rancher_admin_password = var.rancher_admin_password
+}
+
+
+module "monitoring" {
+  source     = "./modules/monitoring"
+  depends_on = [module.eks]
+
+  grafana_admin_password = var.grafana_admin_password
 }
