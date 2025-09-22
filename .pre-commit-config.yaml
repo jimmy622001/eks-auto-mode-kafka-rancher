@@ -4,23 +4,21 @@ repos:
     rev: v1.83.5
     hooks:
       - id: terraform_fmt
-        args:
-          - --args=-recursive
-        files: \.tf$
+        files: ^(.*/)*(.*\.tf)$
+        exclude: \.terraform/.*
       - id: terraform_docs
-        args:
-          - --args=--recursive
-        files: \.tf$
+        files: ^(.*/)*(.*\.tf)$
+        exclude: \.terraform/.*
       - id: terraform_tflint
-        args:
-          - --args=--recursive
-        files: \.tf$
+        files: ^(.*/)*(.*\.tf)$
+        exclude: \.terraform/.*
       - id: terraform_checkov
         args:
           - --args=--quiet
           - --args=--skip-check CKV_AWS_115,CKV_AWS_116
           - --args=--skip-check CKV_SECRET_6
-        files: \.tf$
+        files: ^(.*/)*(.*\.tf)$
+        exclude: \.terraform/.*
 
   - repo: https://github.com/aquasecurity/tfsec
     rev: v1.28.1
@@ -29,7 +27,8 @@ repos:
         args:
           - --exclude-downloaded-modules
           - --ignore-hcl-errors
-        files: \.tf$
+        files: ^(.*/)*(.*\.tf)$
+        exclude: \.terraform/.*
 
   - repo: https://github.com/returntocorp/semgrep
     rev: v1.34.0
