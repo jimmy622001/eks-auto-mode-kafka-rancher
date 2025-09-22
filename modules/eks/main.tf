@@ -41,6 +41,8 @@ module "vpc_eks" {
     var.tags,
     {
       "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+      "Environment"                                 = var.environment
+      "SecurityZone"                                = "private"
     }
   )
 }
@@ -101,6 +103,14 @@ resource "aws_security_group" "vpc_endpoints" {
   tags = {
     Name = "${var.cluster_name}-vpc-endpoints"
   }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
 }
 
 resource "aws_eks_cluster" "cluster" {
@@ -144,7 +154,26 @@ resource "aws_eks_cluster" "cluster" {
     }
   }
 
+  enabled_cluster_log_types = [
+    "api",
+    "audit",
+    "authenticator",
+    "controllerManager",
+    "scheduler"
+  ]
 
+  encryption_config {
+    provider {
+      key_arn = aws_kms_key.eks.arn
+    }
+    resources = ["secrets"]
+  }
+}
+
+resource "aws_kms_key" "eks" {
+  description             = "EKS Secret Encryption Key"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
 }
 
 resource "aws_eks_node_group" "general" {

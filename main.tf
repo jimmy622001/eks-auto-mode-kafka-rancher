@@ -63,6 +63,7 @@ module "eks" {
   private_subnets    = var.private_subnets
   availability_zones = var.availability_zones
   kubernetes_version = var.kubernetes_version
+  environment        = var.environment
   tags = {
     Environment = var.environment
     Terraform   = "true"
@@ -131,5 +132,13 @@ module "monitoring" {
   source     = "./modules/monitoring"
   depends_on = [module.eks]
 
+  environment            = var.environment
+  cluster_name           = var.cluster_name
   grafana_admin_password = var.grafana_admin_password
+
+  # Security scanning secrets
+  sonarqube_token = var.sonarqube_token
+  snyk_token      = var.snyk_token
+  zap_api_key     = var.zap_api_key
+  trivy_token     = var.trivy_token
 }

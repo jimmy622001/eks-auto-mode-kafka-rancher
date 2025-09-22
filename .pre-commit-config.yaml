@@ -1,0 +1,25 @@
+
+repos:
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.83.5
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_docs
+      - id: terraform_tflint
+      - id: terraform_checkov
+        args:
+          - --args=--quiet
+          - --args=--skip-check CKV_AWS_115,CKV_AWS_116
+
+  # Using specific version for tfsec
+  - repo: https://github.com/aquasecurity/tfsec
+    rev: v1.28.1
+    hooks:
+      - id: tfsec
+
+  # Using specific version for semgrep
+  - repo: https://github.com/returntocorp/semgrep
+    rev: v1.34.0
+    hooks:
+      - id: semgrep
+        args: ['--config', 'auto']

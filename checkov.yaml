@@ -1,0 +1,10 @@
+framework:
+  - terraform
+skip-check:
+  - CKV_AWS_115  # Ensure Gateway Logging is enabled for API Gateway
+  - CKV_AWS_116  # Ensure API Gateway has X-Ray tracing enabled
+
+output: cli
+compact: true
+directory:
+  - .

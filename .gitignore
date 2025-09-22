@@ -36,6 +36,10 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 
+# Terraform secrets
+secrets.tfvars
+*.tfvars.secret
+
 # IDE files
 .idea/
 *.iml
@@ -72,4 +76,17 @@ charts/*/charts/
 charts/*/requirements.lock
 *.tgz
 
-# Python virtual
+
+# Allow pre-commit config
+!.pre-commit-config.yaml
+!checkov.yaml
+
+# Scan results
+*.sarif
+terrascan-report.*
+checkov-report.*
+# Security and Secrets
+**/secrets.yaml
+**/secrets.yml
+**/secrets/*.yaml
+**/secrets/*.yml

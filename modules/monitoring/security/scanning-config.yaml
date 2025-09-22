@@ -1,0 +1,37 @@
+
+scan:
+  # SAST Configuration
+  sast:
+    enabled: true
+    tools:
+      semgrep:
+        enabled: true
+        config: "auto"
+      sonarqube:
+        enabled: true
+        server_url: "${SONAR_SERVER_URL}"
+        project_key: "eks-auto-mode-kafka-rancher"
+
+  # SCA Configuration
+  sca:
+    enabled: true
+    tools:
+      trivy:
+        enabled: true
+        severity: "CRITICAL,HIGH"
+      snyk:
+        enabled: true
+        organization: "${SNYK_ORGANIZATION}"
+        severity-threshold: "high"
+
+  # DAST Configuration
+  dast:
+    enabled: true
+    tools:
+      zap:
+        enabled: true
+        target_url: "https://${var.rancher_hostname}"
+        rules_file: "security/zap-rules.conf"
+      nuclei:
+        enabled: true
+        templates: "cves,vulnerabilities"
