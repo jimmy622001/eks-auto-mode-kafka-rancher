@@ -1,92 +1,55 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-# Terraform files
+# Terraform
 .terraform/
 *.tfstate
 *.tfstate.*
+*.tfvars
+!terraform.tfvars.template
 .terraform.lock.hcl
-.terraformrc
-terraform.rc
-.terraform.tfstate.lock.info
-terraform.tfvars
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
+crash.log
 
-# Terraform secrets
+# Secrets
 secrets.tfvars
-*.tfvars.secret
+**/secrets.yaml
+**/secrets/*.yaml
+**/secrets/*.yml
+*.pem
+*.key
+.env
 
-# IDE files
+# IDE
 .idea/
-*.iml
 .vscode/
 *.swp
 *.swo
+*~
 
-# OS files
+# OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-
-# Kubernetes
-kubeconfig*
-*.kubeconfig
 
 # Logs
 *.log
+logs/
 
-# Local environment files
-.env
-.env.*
+# Local development
+.envrc
+.direnv/
+.local/
 
-# Certificate files
-*.pem
-*.key
-*.crt
+# Generated files
+*.generated.*
+generated/
 
-# Crash log files
-crash.log
-crash.*.log
+# Temporary files
+tmp/
+temp/
 
-# Helm
-charts/*/charts/
-charts/*/requirements.lock
-*.tgz
-
-
-# Allow pre-commit config
-!.pre-commit-config.yaml
-!checkov.yaml
-
-# Scan results
-*.sarif
-terrascan-report.*
-checkov-report.*
-# Security and Secrets
-**/secrets.yaml
-**/secrets.yml
-**/secrets/*.yaml
-**/secrets/*.yml
+# Cost estimation
+infracost.json
+cost-report.html
