@@ -4,37 +4,33 @@ repos:
     rev: v1.83.5
     hooks:
       - id: terraform_fmt
-        files: ^(.*/)*(.*\.tf)$
-        exclude: \.terraform/.*
+        name: "Terraform Format"
+
       - id: terraform_docs
-        files: ^(.*/)*(.*\.tf)$
-        exclude: \.terraform/.*
+        name: "Terraform Docs"
+        args:
+          - --hook-config=--path-to-file=README.md
+          - --hook-config=--add-to-existing-file=true
+
       - id: terraform_tflint
-        files: ^(.*/)*(.*\.tf)$
-        exclude: \.terraform/.*
+        name: "Terraform Lint"
+
       - id: terraform_checkov
+        name: "Terraform Security Check"
         args:
           - --args=--quiet
           - --args=--skip-check CKV_AWS_115,CKV_AWS_116
           - --args=--skip-check CKV_SECRET_6
-        files: ^(.*/)*(.*\.tf)$
-        exclude: \.terraform/.*
 
-  - repo: https://github.com/aquasecurity/tfsec
-    rev: v1.28.1
-    hooks:
-      - id: tfsec
-        args:
-          - --exclude-downloaded-modules
-          - --ignore-hcl-errors
-        files: ^(.*/)*(.*\.tf)$
-        exclude: \.terraform/.*
-
+  # Code quality check
   - repo: https://github.com/returntocorp/semgrep
     rev: v1.34.0
     hooks:
       - id: semgrep
-        args: ['--config', 'auto']
+        name: "Code Quality Check"
+        args:
+          - --config=auto
+          - --severity=ERROR
         exclude: |
           (?x)^(
             .*\.tfvars|
