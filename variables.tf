@@ -144,3 +144,89 @@ variable "trivy_token" {
   type        = string
   sensitive   = true
 }
+
+# Jenkins CI/CD Variables
+variable "jenkins_admin_password" {
+  description = "Admin password for Jenkins"
+  type        = string
+  sensitive   = true
+}
+
+variable "jenkins_public_key" {
+  description = "Public key for Jenkins EC2 instances"
+  type        = string
+}
+
+variable "github_token" {
+  description = "GitHub personal access token for webhook integration"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_webhook_secret" {
+  description = "Secret for GitHub webhook validation"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "jenkins_master_instance_type" {
+  description = "Instance type for Jenkins master"
+  type        = string
+  default     = "t3.medium"
+}
+
+variable "jenkins_agent_instance_type" {
+  description = "Instance type for Jenkins agents"
+  type        = string
+  default     = "t3.large"
+}
+
+variable "max_jenkins_agents" {
+  description = "Maximum number of Jenkins agents"
+  type        = number
+  default     = 5
+}
+
+variable "spot_max_price" {
+  description = "Maximum price for Spot instances (per hour)"
+  type        = string
+  default     = "0.10"
+}
+
+variable "enable_jenkins_auto_shutdown" {
+  description = "Enable automatic shutdown of Jenkins master during off-hours"
+  type        = bool
+  default     = true
+}
+
+variable "jenkins_shutdown_schedule" {
+  description = "Cron expression for Jenkins master shutdown (UTC)"
+  type        = string
+  default     = "0 22 * * MON-FRI" # 10 PM UTC, Monday to Friday
+}
+
+variable "jenkins_startup_schedule" {
+  description = "Cron expression for Jenkins master startup (UTC)"
+  type        = string
+  default     = "0 8 * * MON-FRI" # 8 AM UTC, Monday to Friday
+}
+
+variable "enable_jenkins_alb" {
+  description = "Enable Application Load Balancer for Jenkins"
+  type        = bool
+  default     = false
+}
+
+variable "slack_webhook_url" {
+  description = "Slack webhook URL for build notifications"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "notification_email" {
+  description = "Email address for build notifications"
+  type        = string
+  default     = ""
+}

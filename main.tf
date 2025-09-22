@@ -142,3 +142,45 @@ module "monitoring" {
   zap_api_key     = var.zap_api_key
   trivy_token     = var.trivy_token
 }
+
+# Jenkins CI/CD with cost optimization
+module "jenkins" {
+  source     = "./modules/jenkins"
+  depends_on = [module.eks]
+
+  cluster_name    = var.cluster_name
+  aws_region      = var.aws_region
+  vpc_id          = module.eks.vpc_id
+  vpc_cidr        = var.vpc_cidr
+  private_subnets = module.eks.private_subnets
+
+  # Jenkins Configuration
+  jenkins_admin_password = var.jenkins_admin_password
+  jenkins_public_key     = var.jenkins_public_key
+  github_token           = var.github_token
+  github_webhook_secret  = var.github_webhook_secret
+
+  # Instance Configuration
+  jenkins_master_instance_type = var.jenkins_master_instance_type
+  jenkins_agent_instance_type  = var.jenkins_agent_instance_type
+  max_jenkins_agents           = var.max_jenkins_agents
+  spot_max_price               = var.spot_max_price
+
+  # Cost Optimization
+  enable_auto_shutdown = var.enable_jenkins_auto_shutdown
+  shutdown_schedule    = var.jenkins_shutdown_schedule
+  startup_schedule     = var.jenkins_startup_schedule
+
+  # Optional Features
+  enable_jenkins_alb = var.enable_jenkins_alb
+
+  # Notifications
+  slack_webhook_url  = var.slack_webhook_url
+  notification_email = var.notification_email
+
+  tags = {
+    Environment = var.environment
+    Terraform   = "true"
+    Project     = "ctse"
+  }
+}
