@@ -1,7 +1,0 @@
-
-# Security scanning configuration
-# DO NOT fill in actual values here - this is just a template
-sonarqube_token = "your-sonarqube-token"
-snyk_token      = "your-snyk-token"
-zap_api_key     = "your-zap-api-key"
-trivy_token     = "your-trivy-token"

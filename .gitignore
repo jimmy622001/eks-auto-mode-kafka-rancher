@@ -4,14 +4,11 @@
 *.tfstate
 *.tfstate.*
 *.tfvars
-!*.tfvars.example
-!*.tfvars.template
 .terraform.lock.hcl
 crash.log
 
-# Environment-specific variable files
-dev.tfvars
-prod.tfvars
+# Workspace-specific variable files
+workspaces/*/terraform.tfvars
 
 # Secrets
 secrets.tfvars
