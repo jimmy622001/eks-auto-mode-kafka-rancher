@@ -316,7 +316,7 @@ resource "aws_iam_policy" "node_autoscaling" {
 resource "aws_iam_policy" "secrets_access" {
   name        = "${var.cluster_name}-secrets-access"
   description = "Policy to allow access to security tokens in Secrets Manager"
-  
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [

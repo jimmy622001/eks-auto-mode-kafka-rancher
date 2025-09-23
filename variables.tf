@@ -141,21 +141,21 @@ variable "sonarqube_token" {
   description = "SonarQube authentication token"
   type        = string
   sensitive   = true
-  default     = ""  # Will be set in terraform.tfvars or via environment variables
+  default     = "" # Will be set in terraform.tfvars or via environment variables
 }
 
 variable "snyk_token" {
   description = "Snyk authentication token"
   type        = string
   sensitive   = true
-  default     = ""  # Will be set in terraform.tfvars or via environment variables
+  default     = "" # Will be set in terraform.tfvars or via environment variables
 }
 
 variable "trivy_token" {
   description = "Trivy authentication token"
   type        = string
   sensitive   = true
-  default     = ""  # Will be set in terraform.tfvars or via environment variables
+  default     = "" # Will be set in terraform.tfvars or via environment variables
 }
 
 # Jenkins CI/CD Variables

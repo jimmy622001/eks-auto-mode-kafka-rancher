@@ -1,11 +1,13 @@
 # Production Environment Configuration
 
-# AWS Region
-aws_region = "us-west-2"
+# AWS Configuration
+aws_region = "eu-west-1"
+s3_bucket_name = "ctse-eks-rancher-prod-123456"
 
-# Cluster Configuration
-cluster_name = "my-eks-cluster"
-kubernetes_version = "1.24"
+# EKS Cluster Configuration
+cluster_name = "ctse-prod-cluster"
+kubernetes_version = "1.32"
+environment = "prod"
 
 # Node Configuration
 instance_type = "m5.large"
@@ -17,10 +19,11 @@ desired_size = 3
 vpc_cidr = "10.0.0.0/16"
 public_subnets = ["10.10.1.0/24", "10.10.2.0/24", "10.10.3.0/24"]
 private_subnets = ["10.10.4.0/24", "10.10.5.0/24", "10.10.6.0/24"]
-availability_zones = ["us-west-2a", "us-west-2b", "us-west-2c"]
+availability_zones = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
 
 # Rancher Configuration
-rancher_hostname = "rancher-prod.example.com"
+rancher_hostname = "rancher-prod.ctse.com"
+rancher_admin_password = "Pa55Word"  # Change this to a secure password
 
 # Kafka Configuration
 kafka_replicas = 3
@@ -29,7 +32,13 @@ kafka_replicas = 3
 endpoint_private_access = true
 
 # Organization Settings
-organization_name = "my-org-prod"
-organization_email = "prod-org@example.com"
-log_archive_email = "logs-prod@example.com"
-audit_email = "audit-prod@example.com"
+organization_name = "ctse-prod"
+organization_email = "jimmy622001@gmail.com"
+log_archive_email = "jimmy622001@gmail.com"
+audit_email = "jimmy622001@gmail.com"
+
+# Jenkins Configuration (if applicable)
+jenkins_admin_password = "Pa55Word"  # Change this to a secure password
+
+# Monitoring Configuration
+grafana_admin_password = "Pa55Word"  # Change this to a secure password

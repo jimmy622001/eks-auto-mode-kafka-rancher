@@ -32,20 +32,134 @@ This project provides Infrastructure as Code (IaC) for deploying:
 - kubectl installed
 - Helm 3.x
 
-## Quick Start
+## Project Structure
 
-1. Clone this repository
-2. Configure your AWS credentials
-3. Create `terraform.tfvars` with your values
-4. Create `secrets.tfvars` for sensitive values
-5. Run Terraform:
-   bash
+```
+.
+├── modules/               # Reusable Terraform modules
+├── workspaces/
+│   ├── dev/               # Development environment
+│   │   ├── dev.tfvars.example  # Example configuration (versioned)
+│   │   └── terraform.tfvars    # Actual configuration (gitignored)
+│   └── prod/              # Production environment
+│       ├── prod.tfvars.example # Example configuration (versioned)
+│       └── terraform.tfvars    # Actual configuration (gitignored)
+├── terraform-bootstrap.tf # Bootstrap resources (S3, etc.)
+└── main.tf               # Root module configuration
+```
+
+## Prerequisites
+
+- AWS Account with appropriate IAM permissions
+- Terraform >= 1.0
+- AWS CLI configured with credentials
+- kubectl installed
+- Helm 3.x
+- jq (for some deployment scripts)
+
+## Environment Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd eks-auto-mode-kafka-rancher
+   ```
+
+2. **Set up your environment** (choose one):
+
+   ### Development Environment
+   ```bash
+   cd workspaces/dev
+   cp dev.tfvars.example terraform.tfvars
+   ```
+   
+   ### Production Environment
+   ```bash
+   cd workspaces/prod
+   cp prod.tfvars.example terraform.tfvars
+   ```
+
+3. **Edit the configuration**:
+   - Update `terraform.tfvars` with your specific values
+   - Change all default passwords and sensitive values
+   - Update the `aws_region` if needed (default: eu-west-1)
+
+## Deployment
+
+### 1. Bootstrap (First Time Only)
+
+```bash
+# From repository root
+cd workspaces/<env>  # dev or prod
+
+# Initialize Terraform with backend configuration
+terraform init -backend-config="../backend.hcl"
+
+# Initialize the S3 bucket for Terraform state (first time only)
+cd ../..
+terraform -chdir=terraform-bootstrap init
+terraform -chdir=terraform-bootstrap apply
+```
+
+### 2. Deploy Infrastructure
+
+```bash
+# From the environment directory (workspaces/dev or workspaces/prod)
+cd workspaces/<env>
+
 # Initialize Terraform
 terraform init
-# Review changes
-terraform plan -var-file="terraform.tfvars" -var-file="secrets.tfvars"
-# Apply changes
-terraform apply -var-file="terraform.tfvars" -var-file="secrets.tfvars"
+
+# Review the execution plan
+terraform plan
+
+# Apply the configuration (type 'yes' to confirm)
+terraform apply
+```
+
+### 3. Access the Environment
+
+After successful deployment, you can access:
+
+- **Rancher Dashboard**: `https://<rancher_hostname>`
+- **Grafana**: `http://<loadbalancer-address>` (check output for exact URL)
+- **Kubernetes Cluster**:
+  ```bash
+  aws eks --region <region> update-kubeconfig --name <cluster-name>
+  kubectl get nodes
+  ```
+
+## Managing the Environment
+
+### Update Configuration
+1. Edit `terraform.tfvars` in your environment directory
+2. Run `terraform plan` to review changes
+3. Apply with `terraform apply`
+
+### Destroy Environment
+
+⚠️ **Warning**: This will permanently delete all resources!
+
+```bash
+# From the environment directory
+terraform destroy
+```
+
+## Security Best Practices
+
+- Never commit `terraform.tfvars` to version control
+- Use strong, unique passwords for all services
+- Regularly rotate credentials and access keys
+- Enable MFA for all IAM users
+- Review CloudTrail logs for suspicious activity
+- Keep Terraform and providers updated
+
+## Troubleshooting
+
+- **Authentication Issues**: Verify AWS credentials and region
+- **Module Errors**: Run `terraform init -upgrade`
+- **Kubernetes Access**: Verify your kubeconfig is up to date
+- **Resource Limits**: Check AWS service quotas if resources fail to create
 
 ## Security Best Practices
 - Keep `secrets.tfvars` in `.gitignore`

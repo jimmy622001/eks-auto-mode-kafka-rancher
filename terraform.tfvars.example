@@ -1,5 +1,5 @@
 # AWS Configuration
-aws_region     = "us-west-2"
+aws_region     = "eu-west-1"
 s3_bucket_name = "ctse-eks-rancher-123456"
 
 # EKS Cluster Configuration

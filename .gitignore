@@ -4,9 +4,14 @@
 *.tfstate
 *.tfstate.*
 *.tfvars
-!terraform.tfvars.template
+!*.tfvars.example
+!*.tfvars.template
 .terraform.lock.hcl
 crash.log
+
+# Environment-specific variable files
+dev.tfvars
+prod.tfvars
 
 # Secrets
 secrets.tfvars
@@ -53,3 +58,5 @@ temp/
 # Cost estimation
 infracost.json
 cost-report.html
+# Workspace-specific variable files
+workspaces/*/terraform.tfvars
