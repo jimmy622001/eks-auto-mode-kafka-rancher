@@ -28,10 +28,6 @@ scan:
   dast:
     enabled: true
     tools:
-      zap:
-        enabled: true
-        target_url: "https://${var.rancher_hostname}"
-        rules_file: "security/zap-rules.conf"
       nuclei:
         enabled: true
         templates: "cves,vulnerabilities"

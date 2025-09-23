@@ -271,9 +271,10 @@ resource "aws_iam_role" "node" {
       },
     ]
   })
+  tags = var.tags
 }
 
-resource "aws_iam_role_policy_attachment" "node_AmazonEKSWorkerNodeMinimalPolicy" {
+resource "aws_iam_role_policy_attachment" "node_AmazonEKSWorkerNodePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodeMinimalPolicy"
   role       = aws_iam_role.node.name
 }
@@ -309,4 +310,30 @@ resource "aws_iam_policy" "node_autoscaling" {
       }
     ]
   })
+}
+
+# Create an IAM policy for accessing the secrets
+resource "aws_iam_policy" "secrets_access" {
+  name        = "${var.cluster_name}-secrets-access"
+  description = "Policy to allow access to security tokens in Secrets Manager"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Attach the secrets access policy to the node role
+resource "aws_iam_role_policy_attachment" "secrets_access" {
+  policy_arn = aws_iam_policy.secrets_access.arn
+  role       = aws_iam_role.node.name
 }

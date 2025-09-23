@@ -1,0 +1,24 @@
+# AWS Configuration
+aws_region     = "us-west-2"
+s3_bucket_name = "ctse-eks-rancher-123456"
+
+# EKS Cluster Configuration
+cluster_name = "my-eks-cluster"
+environment  = "dev"  # or "prod" for production
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+public_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+private_subnets = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+
+# Rancher Configuration
+rancher_admin_password = "Pa55Word"  # Change this to a secure password
+
+# Organization Settings
+organization_name = "ctse"
+organization_email = "jimmy622001@gmail.com"
+log_archive_email = "jimmy622001@gmail.com"
+audit_email = "jimmy622001@gmail.com"
+
+# Jenkins Configuration (if applicable)
+jenkins_admin_password = "your-jenkins-password"  # Change this to a secure password

@@ -13,17 +13,23 @@ terraform {
       version = ">= 2.0.0"
     }
   }
+
+  # Temporarily using local backend for bootstrapping
+  backend "local" {
+    path = "terraform.tfstate"
+  }
 }
 
 provider "aws" {
   region = var.aws_region
 
   default_tags {
-    tags = {
-      Project     = "ctse"
-      Environment = var.environment
-      Terraform   = "true"
-    }
+    tags = merge(
+      local.common_tags,
+      {
+        ManagedBy = "terraform"
+      }
+    )
   }
 }
 
@@ -58,16 +64,31 @@ module "control_tower" {
 module "eks" {
   source             = "./modules/eks"
   aws_region         = var.aws_region
-  cluster_name       = var.cluster_name
+  cluster_name       = "${var.cluster_name}-${local.env}" # Append environment to cluster name
   public_subnets     = var.public_subnets
   private_subnets    = var.private_subnets
   availability_zones = var.availability_zones
-  kubernetes_version = var.kubernetes_version
+  vpc_cidr           = var.vpc_cidr
   environment        = var.environment
-  tags = {
-    Environment = var.environment
-    Terraform   = "true"
+
+  # Node group configuration from environment-specific settings
+  general_purpose_node_group = {
+    desired_size   = local.config.desired_size
+    min_size       = local.config.min_size
+    max_size       = local.config.max_size
+    instance_types = [local.config.instance_type]
+    capacity_type  = "ON_DEMAND"
   }
+
+  system_node_group = var.system_node_group
+
+  tags = merge(
+    local.common_tags,
+    {
+      ManagedBy = "terraform"
+    }
+  )
+
   depends_on = [module.control_tower]
 }
 
@@ -135,12 +156,6 @@ module "monitoring" {
   environment            = var.environment
   cluster_name           = var.cluster_name
   grafana_admin_password = var.grafana_admin_password
-
-  # Security scanning secrets
-  sonarqube_token = var.sonarqube_token
-  snyk_token      = var.snyk_token
-  zap_api_key     = var.zap_api_key
-  trivy_token     = var.trivy_token
 }
 
 # Jenkins CI/CD with cost optimization
@@ -153,6 +168,7 @@ module "jenkins" {
   vpc_id          = module.eks.vpc_id
   vpc_cidr        = var.vpc_cidr
   private_subnets = module.eks.private_subnets
+  environment     = var.environment
 
   # Jenkins Configuration
   jenkins_admin_password = var.jenkins_admin_password

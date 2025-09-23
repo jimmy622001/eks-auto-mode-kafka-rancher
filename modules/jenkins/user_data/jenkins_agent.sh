@@ -48,7 +48,7 @@ mkdir -p /opt/jenkins
 cd /opt/jenkins
 
 # Download Jenkins agent JAR
-wget ${JENKINS_MASTER_URL}/jnlpJars/agent.jar -O agent.jar
+wget $${JENKINS_MASTER_URL}/jnlpJars/agent.jar -O agent.jar
 chown jenkins:jenkins agent.jar
 
 # Create Jenkins agent service script
@@ -58,7 +58,7 @@ cat > /opt/jenkins/jenkins-agent.sh << 'EOF'
 # Jenkins Agent Service Script
 set -e
 
-JENKINS_MASTER_URL="${JENKINS_MASTER_URL}"
+JENKINS_MASTER_URL="$${JENKINS_MASTER_URL}"
 AGENT_NAME=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 AGENT_SECRET=""
 JENKINS_USER="admin"
@@ -66,7 +66,7 @@ JENKINS_PASSWORD=""
 
 # Function to get Jenkins credentials from SSM
 get_jenkins_credentials() {
-    JENKINS_PASSWORD=$(aws ssm get-parameter --region ${AWS_REGION} --name "/jenkins/*/admin-password" --with-decryption --query 'Parameter.Value' --output text 2>/dev/null || echo "")
+    JENKINS_PASSWORD=$(aws ssm get-parameter --region $${AWS_REGION} --name "/jenkins/*/admin-password" --with-decryption --query 'Parameter.Value' --output text 2>/dev/null || echo "")
 }
 
 # Function to register agent with Jenkins master
@@ -138,7 +138,7 @@ handle_interruption() {
     # Upload any remaining artifacts to S3
     if [ -d "/home/jenkins/workspace" ]; then
         echo "Uploading workspace artifacts to S3..."
-        aws s3 sync /home/jenkins/workspace s3://${S3_BUCKET}/agent-workspaces/$AGENT_NAME/ --delete || true
+        aws s3 sync /home/jenkins/workspace s3://$${S3_BUCKET}/agent-workspaces/$AGENT_NAME/ --delete || true
     fi
     
     exit 0
@@ -188,9 +188,9 @@ WorkingDirectory=/opt/jenkins
 ExecStart=/opt/jenkins/jenkins-agent.sh
 Restart=always
 RestartSec=30
-Environment="JENKINS_MASTER_URL=${JENKINS_MASTER_URL}"
-Environment="S3_BUCKET=${S3_BUCKET}"
-Environment="AWS_REGION=${AWS_REGION}"
+Environment="JENKINS_MASTER_URL=$${JENKINS_MASTER_URL}"
+Environment="S3_BUCKET=$${S3_BUCKET}"
+Environment="AWS_REGION=$${AWS_REGION}"
 
 [Install]
 WantedBy=multi-user.target
@@ -208,7 +208,7 @@ INTERRUPTION_URL="$METADATA_URL/spot/instance-action"
 
 while true; do
     # Check for spot instance interruption notice
-    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$INTERRUPTION_URL" --max-time 2)
+    HTTP_CODE=$(curl -s -o /dev/null -w "%%{http_code}" "$INTERRUPTION_URL" --max-time 2)
     
     if [ "$HTTP_CODE" -eq 200 ]; then
         echo "$(date): Spot instance interruption notice received"
@@ -223,7 +223,7 @@ while true; do
         # Upload final logs and artifacts
         if [ -d "/home/jenkins/workspace" ]; then
             INSTANCE_ID=$(curl -s "$METADATA_URL/instance-id")
-            aws s3 sync /home/jenkins/workspace "s3://${S3_BUCKET}/interrupted-workspaces/$INSTANCE_ID/" || true
+            aws s3 sync /home/jenkins/workspace "s3://$${S3_BUCKET}/interrupted-workspaces/$INSTANCE_ID/" || true
         fi
         
         # Log the interruption
@@ -254,8 +254,8 @@ User=root
 ExecStart=/opt/jenkins/spot-interruption-handler.sh
 Restart=always
 RestartSec=10
-Environment="S3_BUCKET=${S3_BUCKET}"
-Environment="AWS_REGION=${AWS_REGION}"
+Environment="S3_BUCKET=$${S3_BUCKET}"
+Environment="AWS_REGION=$${AWS_REGION}"
 
 [Install]
 WantedBy=multi-user.target
@@ -319,7 +319,7 @@ cat > /opt/jenkins/cost-monitor.sh << 'EOF'
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 INSTANCE_TYPE=$(curl -s http://169.254.169.254/latest/meta-data/instance-type)
 AVAILABILITY_ZONE=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
-REGION=${AVAILABILITY_ZONE%?}
+REGION=$${AVAILABILITY_ZONE%?}
 
 # Get current spot price
 SPOT_PRICE=$(aws ec2 describe-spot-price-history \
@@ -354,7 +354,7 @@ COST_REPORT="{
 
 # Upload cost report to S3
 echo "$COST_REPORT" > /tmp/agent-cost-report.json
-aws s3 cp /tmp/agent-cost-report.json "s3://${S3_BUCKET}/cost-reports/agents/$(date +%Y%m%d)/agent-$INSTANCE_ID-$(date +%H%M%S).json" || true
+aws s3 cp /tmp/agent-cost-report.json "s3://$${S3_BUCKET}/cost-reports/agents/$(date +%Y%m%d)/agent-$INSTANCE_ID-$(date +%H%M%S).json" || true
 rm -f /tmp/agent-cost-report.json
 
 echo "Cost report uploaded: Estimated cost \$$ESTIMATED_COST for $UPTIME_HOURS hours"
@@ -448,7 +448,7 @@ systemctl start jenkins-agent
 echo "Jenkins agent installation completed!"
 echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
 echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
-echo "Jenkins Master URL: ${JENKINS_MASTER_URL}"
+echo "Jenkins Master URL: $${JENKINS_MASTER_URL}"
 echo "Agent will automatically register with Jenkins master"
 
 # Log successful startup

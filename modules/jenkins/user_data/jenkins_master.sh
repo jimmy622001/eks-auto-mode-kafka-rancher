@@ -43,8 +43,9 @@ cat > /var/lib/jenkins/jenkins.install.InstallUtil.lastExecVersion << EOF
 EOF
 
 # Create admin user configuration
-mkdir -p /var/lib/jenkins/users/admin_$(echo -n "admin" | sha256sum | cut -d' ' -f1)
-cat > /var/lib/jenkins/users/admin_$(echo -n "admin" | sha256sum | cut -d' ' -f1)/config.xml << EOF
+ADMIN_HASH=$(echo -n "admin" | sha256sum | cut -d' ' -f1)
+mkdir -p /var/lib/jenkins/users/admin_$ADMIN_HASH
+cat > /var/lib/jenkins/users/admin_$ADMIN_HASH/config.xml << EOF
 <?xml version='1.1' encoding='UTF-8'?>
 <user>
   <version>10</version>
@@ -86,8 +87,8 @@ cat > /var/lib/jenkins/config.xml << 'EOF'
   </securityRealm>
   <disableRememberMe>false</disableRememberMe>
   <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$DefaultProjectNamingStrategy"/>
-  <workspaceDir>\${JENKINS_HOME}/workspace/\${ITEM_FULLNAME}</workspaceDir>
-  <buildsDir>\${ITEM_ROOTDIR}/builds</buildsDir>
+  <workspaceDir>$${JENKINS_HOME}/workspace/$${ITEM_FULLNAME}</workspaceDir>
+  <buildsDir>$${ITEM_ROOTDIR}/builds</buildsDir>
   <markupFormatter class="hudson.markup.EscapedMarkupFormatter"/>
   <jdks/>
   <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
@@ -215,7 +216,7 @@ download_plugin "s3" "0.12.0"
 
 # Create Jenkins job for cost optimization monitoring
 mkdir -p /var/lib/jenkins/jobs/cost-optimization-monitor/
-cat > /var/lib/jenkins/jobs/cost-optimization-monitor/config.xml << 'EOF'
+cat > /var/lib/jenkins/jobs/cost-optimization-monitor/config.xml << 'JOBEOF'
 <?xml version='1.1' encoding='UTF-8'?>
 <project>
   <actions/>
@@ -290,19 +291,19 @@ echo "=== Cost optimization check complete ==="
     </hudson.plugins.build__timeout.BuildTimeoutWrapper>
   </buildWrappers>
 </project>
-EOF
+JOBEOF
 
 # Set proper ownership
 chown -R jenkins:jenkins /var/lib/jenkins
 
 # Create systemd override for Jenkins to set environment variables
 mkdir -p /etc/systemd/system/jenkins.service.d
-cat > /etc/systemd/system/jenkins.service.d/override.conf << EOF
+cat > /etc/systemd/system/jenkins.service.d/override.conf << ENVEOF
 [Service]
 Environment="AWS_REGION=$AWS_REGION"
 Environment="S3_BUCKET=$S3_BUCKET"
 Environment="GITHUB_TOKEN=$GITHUB_TOKEN"
-EOF
+ENVEOF
 
 # Start and enable Jenkins
 systemctl daemon-reload
@@ -315,7 +316,7 @@ sleep 60
 
 # Create a simple pipeline job for GitHub integration
 mkdir -p /var/lib/jenkins/jobs/github-pipeline/
-cat > /var/lib/jenkins/jobs/github-pipeline/config.xml << 'EOF'
+cat > /var/lib/jenkins/jobs/github-pipeline/config.xml << 'PIPELINEEOF'
 <?xml version='1.1' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job@2.42">
   <actions/>
@@ -386,7 +387,7 @@ cat > /var/lib/jenkins/jobs/github-pipeline/config.xml << 'EOF'
                 echo "Archiving artifacts to S3..."
                 sh '''
                     echo "Build artifacts" > build-artifact.txt
-                    aws s3 cp build-artifact.txt s3://$S3_BUCKET/artifacts/build-${BUILD_NUMBER}-$(date +%Y%m%d-%H%M%S).txt
+                    aws s3 cp build-artifact.txt s3://$S3_BUCKET/artifacts/build-$${BUILD_NUMBER}-$(date +%Y%m%d-%H%M%S).txt
                 '''
             }
         }
@@ -410,7 +411,7 @@ cat > /var/lib/jenkins/jobs/github-pipeline/config.xml << 'EOF'
   <triggers/>
   <disabled>false</disabled>
 </flow-definition>
-EOF
+PIPELINEEOF
 
 # Set ownership again after creating jobs
 chown -R jenkins:jenkins /var/lib/jenkins
@@ -419,7 +420,7 @@ chown -R jenkins:jenkins /var/lib/jenkins
 systemctl restart jenkins
 
 # Create a script for cost optimization
-cat > /usr/local/bin/jenkins-cost-optimizer.sh << 'EOF'
+cat > /usr/local/bin/jenkins-cost-optimizer.sh << 'SCRIPTEOF'
 #!/bin/bash
 
 # Jenkins Cost Optimization Script
@@ -442,7 +443,7 @@ case "$1" in
         systemctl start jenkins
         ;;
     "scale-agents")
-        DESIRED_CAPACITY=${2:-0}
+        DESIRED_CAPACITY=$${2:-0}
         echo "Scaling Jenkins agents to $DESIRED_CAPACITY..."
         ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --region $AWS_REGION \
             --query 'AutoScalingGroups[?contains(Tags[?Key==`Name`].Value, `jenkins-agent`)].AutoScalingGroupName' \
@@ -458,12 +459,12 @@ case "$1" in
         exit 1
         ;;
 esac
-EOF
+SCRIPTEOF
 
 chmod +x /usr/local/bin/jenkins-cost-optimizer.sh
 
 # Create CloudWatch agent configuration for monitoring
-cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json << EOF
+cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json << CWEOF
 {
     "metrics": {
         "namespace": "Jenkins/CostOptimization",
@@ -508,7 +509,7 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json << EOF
         }
     }
 }
-EOF
+CWEOF
 
 echo "Jenkins master installation and configuration completed!"
 echo "Jenkins will be available at http://$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):8080"

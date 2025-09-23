@@ -726,36 +726,39 @@ resource "aws_cloudwatch_event_rule" "jenkins_startup" {
 
 # Lambda function for cost optimization (shutdown/startup)
 resource "aws_lambda_function" "jenkins_cost_optimizer" {
-  count            = var.enable_auto_shutdown ? 1 : 0
-  filename         = data.archive_file.jenkins_cost_optimizer[0].output_path
-  function_name    = "${local.jenkins_name}-cost-optimizer"
-  role             = aws_iam_role.lambda_cost_optimizer[0].arn
-  handler          = "index.handler"
-  source_code_hash = data.archive_file.jenkins_cost_optimizer[0].output_base64sha256
-  runtime          = "python3.9"
-  timeout          = 300
+  count         = var.enable_auto_shutdown ? 1 : 0
+  filename      = data.archive_file.jenkins_cost_optimizer[0].output_path
+  function_name = "${local.jenkins_name}-cost-optimizer"
+  role          = aws_iam_role.lambda_cost_optimizer[0].arn
+  handler       = "cost_optimizer.handler"
+  runtime       = "python3.9"
+  timeout       = 300
+  memory_size   = 128
 
+  source_code_hash = data.archive_file.jenkins_cost_optimizer[0].output_base64sha256
+
+  # Set environment variables for the Lambda function
   environment {
     variables = {
       JENKINS_INSTANCE_ID = aws_instance.jenkins_master.id
       ASG_NAME            = aws_autoscaling_group.jenkins_agents.name
+      ENVIRONMENT         = var.environment
     }
   }
 
-  tags = local.common_tags
+  tags = merge(local.common_tags, {
+    Name        = "${local.jenkins_name}-cost-optimizer"
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  })
 }
 
 data "archive_file" "jenkins_cost_optimizer" {
-  count       = var.enable_auto_shutdown ? 1 : 0
-  type        = "zip"
-  output_path = "${path.module}/jenkins_cost_optimizer.zip"
-  source {
-    content = templatefile("${path.module}/lambda/cost_optimizer.py", {
-      jenkins_instance_id = aws_instance.jenkins_master.id
-      asg_name            = aws_autoscaling_group.jenkins_agents.name
-    })
-    filename = "index.py"
-  }
+  count            = var.enable_auto_shutdown ? 1 : 0
+  type             = "zip"
+  output_path      = "${path.module}/jenkins_cost_optimizer.zip"
+  source_file      = "${path.module}/lambda/cost_optimizer.py"
+  output_file_mode = "0666"
 }
 
 resource "aws_iam_role" "lambda_cost_optimizer" {

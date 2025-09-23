@@ -14,27 +14,4 @@ variable "cluster_name" {
   type        = string
 }
 
-# Security scanning secrets
-variable "sonarqube_token" {
-  description = "SonarQube authentication token"
-  type        = string
-  sensitive   = true
-}
-
-variable "snyk_token" {
-  description = "Snyk authentication token"
-  type        = string
-  sensitive   = true
-}
-
-variable "zap_api_key" {
-  description = "OWASP ZAP API key"
-  type        = string
-  sensitive   = true
-}
-
-variable "trivy_token" {
-  description = "Trivy authentication token"
-  type        = string
-  sensitive   = true
-}
+# Security tokens are now managed via AWS Secrets Manager

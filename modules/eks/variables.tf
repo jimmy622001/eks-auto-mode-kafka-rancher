@@ -91,9 +91,19 @@ variable "namespace" {
   description = "Kubernetes namespace for EKS components"
   default     = "kube-system"
 }
+
 variable "aws_region" {
   type        = string
   description = "AWS region"
+}
+
+# This will be attached in the root module after the secrets module is created
+# to avoid circular dependencies
+variable "secrets_access_policy_arn" {
+  description = "ARN of the IAM policy for accessing secrets"
+  type        = string
+  default     = null
+  nullable    = true
 }
 variable "environment" {
   description = "Environment name"

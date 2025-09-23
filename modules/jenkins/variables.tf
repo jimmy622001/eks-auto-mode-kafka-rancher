@@ -23,6 +23,11 @@ variable "private_subnets" {
   type        = list(string)
 }
 
+variable "environment" {
+  description = "Environment name (e.g., dev, prod)"
+  type        = string
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)

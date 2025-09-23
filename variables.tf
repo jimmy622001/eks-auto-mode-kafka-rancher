@@ -1,7 +1,12 @@
 variable "aws_region" {
   type        = string
   description = "AWS region"
+}
 
+variable "s3_bucket_name" {
+  type        = string
+  description = "Name of the S3 bucket for Terraform state storage"
+  default     = "ctse-eks-rancher-123456"
 }
 
 variable "cluster_name" {
@@ -55,9 +60,19 @@ variable "replica_count" {
 variable "system_node_group" {
   description = "Configuration for the system node group"
   type = object({
-    desired_size = number,
-    min_size     = number
+    desired_size   = number
+    min_size       = number
+    max_size       = number
+    instance_types = list(string)
+    capacity_type  = string
   })
+  default = {
+    desired_size   = 2
+    min_size       = 2
+    max_size       = 3
+    instance_types = ["t3.medium"]
+    capacity_type  = "ON_DEMAND"
+  }
 }
 variable "rancher_hostname" {
   description = "Rancher hostname"
@@ -121,28 +136,26 @@ variable "availability_zones" {
 }
 
 # Security scanning secrets
+# These values will be stored in AWS Secrets Manager
 variable "sonarqube_token" {
   description = "SonarQube authentication token"
   type        = string
   sensitive   = true
+  default     = ""  # Will be set in terraform.tfvars or via environment variables
 }
 
 variable "snyk_token" {
   description = "Snyk authentication token"
   type        = string
   sensitive   = true
-}
-
-variable "zap_api_key" {
-  description = "OWASP ZAP API key"
-  type        = string
-  sensitive   = true
+  default     = ""  # Will be set in terraform.tfvars or via environment variables
 }
 
 variable "trivy_token" {
   description = "Trivy authentication token"
   type        = string
   sensitive   = true
+  default     = ""  # Will be set in terraform.tfvars or via environment variables
 }
 
 # Jenkins CI/CD Variables
@@ -150,17 +163,20 @@ variable "jenkins_admin_password" {
   description = "Admin password for Jenkins"
   type        = string
   sensitive   = true
+  default     = "admin123" # Change this in production
 }
 
 variable "jenkins_public_key" {
   description = "Public key for Jenkins EC2 instances"
   type        = string
+  default     = "ssh-rsa AAAAB3NzaC1yc2E... user@example.com" # Replace with your public key
 }
 
 variable "github_token" {
   description = "GitHub personal access token for webhook integration"
   type        = string
   sensitive   = true
+  default     = "dummy-token-replace-me" # Replace with actual token in production
 }
 
 variable "github_webhook_secret" {

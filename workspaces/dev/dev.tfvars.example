@@ -1,0 +1,35 @@
+# Development Environment Configuration
+
+# AWS Region
+aws_region = "eu-west-1"
+
+# Cluster Configuration
+cluster_name = "my-eks-cluster"
+kubernetes_version = "1.32"
+
+# Node Configuration
+instance_type = "t3.medium"
+min_size = 1
+max_size = 3
+desired_size = 1
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+public_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+private_subnets = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+availability_zones = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+
+# Rancher Configuration
+rancher_hostname = "rancher-dev.example.com"
+
+# Kafka Configuration
+kafka_replicas = 1
+
+# Security Configuration
+endpoint_private_access = true
+
+# Organization Settings
+organization_name = "my-org-dev"
+organization_email = "dev-org@example.com"
+log_archive_email = "logs-dev@example.com"
+audit_email = "audit-dev@example.com"

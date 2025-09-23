@@ -49,30 +49,6 @@ resource "helm_release" "grafana" {
     }
   ]
 }
-# Security scanning secrets management
-resource "aws_secretsmanager_secret" "security_scanning" {
-  name        = "${var.environment}-${var.cluster_name}-security-scanning-secrets"
-  description = "Secrets for security scanning tools in monitoring"
-
-  tags = {
-    Environment = var.environment
-    Component   = "security-monitoring"
-    ManagedBy   = "terraform"
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "security_scanning" {
-  secret_id = aws_secretsmanager_secret.security_scanning.id
-  secret_string = jsonencode({
-    sonarqube_token = var.sonarqube_token
-    snyk_token      = var.snyk_token
-    zap_api_key     = var.zap_api_key
-    trivy_token     = var.trivy_token
-  })
-}
-
-
-
 # Deploy Trivy operator for continuous container scanning
 resource "helm_release" "trivy_operator" {
   name             = "trivy-operator"
