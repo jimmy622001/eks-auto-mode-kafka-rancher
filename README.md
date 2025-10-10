@@ -166,3 +166,5 @@ terraform destroy
 - Use `terraform.tfvars.template` as a reference
 - Rotate security scanning tokens regularly
 - Review Trivy scan reports periodically
+
+![alt text](image.png)
