@@ -1,59 +1,10 @@
+# Ignore .codemie directory/files
+.codemie/
+.codemie
 
 # Terraform
-.terraform/
 *.tfstate
-*.tfstate.*
-*.tfvars
-.terraform.lock.hcl
-crash.log
-
-# Workspace-specific variable files
-workspaces/*/terraform.tfvars
-
-# Secrets
-secrets.tfvars
-**/secrets.yaml
-**/secrets/*.yaml
-**/secrets/*.yml
-*.pem
-*.key
-.env
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Local development
-.envrc
-.direnv/
-.local/
-
-# Generated files
-*.generated.*
-generated/
-
-# Temporary files
-tmp/
-temp/
-
-# Cost estimation
-infracost.json
-cost-report.html
-# Workspace-specific variable files
-workspaces/*/terraform.tfvars
+*.tfstate.backup
+*.tfstate.lock.info
+.terraform/
+terraform.tfvars
